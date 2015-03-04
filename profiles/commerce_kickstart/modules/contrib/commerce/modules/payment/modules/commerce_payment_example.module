@@ -28,19 +28,9 @@ function commerce_payment_example_commerce_payment_method_info() {
 function commerce_payment_example_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
   module_load_include('inc', 'commerce_payment', 'includes/commerce_payment.credit_card');
 
-
   // Default to a known test credit card number. For valid numbers of other card
   // types see: http://www.rimmkaufman.com/blog/credit-card-test-numbers/09112007/
-  //
-  $form = commerce_payment_credit_card_form(array(), array('number' => '4111111111111111'));
-
-  $form['campoadicional'] = array(
-    '#type' => 'checkbox',
-    '#title' => 'prueba',
-    '#default_value' => 1,
-    );
-
-  return $form;
+  return commerce_payment_credit_card_form(array(), array('number' => '4111111111111111'));
 }
 
 /**
