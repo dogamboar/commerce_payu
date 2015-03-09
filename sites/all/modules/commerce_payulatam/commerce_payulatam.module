@@ -414,28 +414,49 @@ function commerce_payulatam_settings_form($settings = NULL) {
  * Payment method callback: submit form.
  */
 function commerce_payulatam_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
-  module_load_include('inc', 'commerce_payment', 'includes/commerce_payment.credit_card');
+  $form['buyerEmail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Buyer email'),
+    '#default_value' => $order->mail,
+    '#element_validate' => array('commerce_payulatam_element_validate_valid_email')
+    '#required' => TRUE,
+  );
 
-  // Default to a known test credit card number. For valid numbers of other card
-  // types see: http://www.rimmkaufman.com/blog/credit-card-test-numbers/09112007/
-  //
-  //$form = commerce_payment_credit_card_form(array(), array('number' => '4111111111111111'));
+  $form['payerEmail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Payer email'),
+    '#default_value' => $order->mail,
+    '#element_validate' => array('commerce_payulatam_element_validate_valid_email')
+    '#required' => TRUE,
+  );
 
-  $form['campoadicional'] = array(
-    '#type' => 'checkbox',
-    '#title' => 'prueba',
-    '#default_value' => 1,
-    );
-
+  $form['telephone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Buyer telephone'),
+    '#default_value' => '',
+    '#required' => TRUE,
+  );
   return $form;
 }
 
+/**
+ * Payment method callback: submit form submission.
+ */
+function commerce_payulatam_submit_form_submit($payment_method, $pane_form, $pane_values, $order, $charge) {
+  $order->data['commerce_payulatam_data'] = $pane_values;
+}
+
+function commerce_payulatam_element_validate_valid_email($element, &$form_state) {
+  $value = $element ['#value'];
+  if ( !valid_email_address($value) ) {
+    form_error($element, t('%email is not a valid email', array('%email' => $value)));
+  }
+}
 
 /**
  * Add parameters method payulatam
  */
 function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_method) {
-  dpm(func_get_args());
   $settings = $payment_method['settings'];
 
   if (!isset($settings['py_api_key']) || empty($settings['py_merchant_id'])) {
@@ -446,6 +467,9 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
   module_load_include('inc', 'commerce_payulatam');
 
   $wrapper = entity_metadata_wrapper('commerce_order', $order);
+
+  $address_billing = $wrapper->commerce_customer_billing->commerce_customer_address->value();
+  $address_shipping = $wrapper->commerce_customer_shipping->commerce_customer_address->value();
 
   $currency_code = $wrapper->commerce_order_total->currency_code->value();
 
@@ -497,10 +521,22 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
     'signature' => $signature,
     'accountId' => $settings['py_account_id'],
     'currency' => $settings['currency_code'],
-    'buyerEmail' => $order->mail,
+    'buyerEmail' => $order->data['commerce_payulatam_data']['buyerEmail'],
+    'payerEmail' => $order->data['commerce_payulatam_data']['payerEmail'],
+    'payerFullName' => $address_billing['name_line'],
+    'buyerFullName' => $address_billing['name_line'],
+    'telephone' => $order->data['commerce_payulatam_data']['telephone'],
+    'mobilePhone' => $order->data['commerce_payulatam_data']['telephone'],
     'confirmationUrl' => $url_page['confirmation'],
     'responseUrl' => $url_page['response'],
     'extra1' => $payment_method['instance_id'],
+    'billingAddress' => $address_billing['thoroughfare'],
+    'billingCountry' => $address_billing['country'],
+    'billingCity' => $address_billing['locality'],
+    'shippingAddress' => $address_shipping['thoroughfare'],
+    'shippingCity' => $address_shipping['locality'],
+    'shippingCountry' => $address_shipping['country'],
+    'mobilePhone' => $address_billing['name_line'],
   );
 
   // Mode Test.
@@ -520,7 +556,6 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
     '#type' => 'submit',
     '#value' => t('Proceed to payulatam'),
   );
-  dpm($form);
 
   return $form;
 }
