@@ -418,7 +418,7 @@ function commerce_payulatam_submit_form($payment_method, $pane_values, $checkout
     '#type' => 'textfield',
     '#title' => t('Buyer email'),
     '#default_value' => $order->mail,
-    '#element_validate' => array('commerce_payulatam_element_validate_valid_email')
+    '#element_validate' => array('commerce_payulatam_element_validate_valid_email'),
     '#required' => TRUE,
   );
 
@@ -426,7 +426,7 @@ function commerce_payulatam_submit_form($payment_method, $pane_values, $checkout
     '#type' => 'textfield',
     '#title' => t('Payer email'),
     '#default_value' => $order->mail,
-    '#element_validate' => array('commerce_payulatam_element_validate_valid_email')
+    '#element_validate' => array('commerce_payulatam_element_validate_valid_email'),
     '#required' => TRUE,
   );
 
