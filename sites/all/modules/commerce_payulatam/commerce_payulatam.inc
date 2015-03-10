@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * API payment payulatam
@@ -9,7 +10,7 @@
  */
 function commerce_payulatam_response($order) {
   $param = commerce_payulatam_get_param($_GET);
-  
+
   $param['value'] = number_format($param['value'], 1, '.', '');
 
   if ($param['transactionState'] == 6 && $param['polResponseCode'] == 5) {
@@ -74,7 +75,7 @@ function commerce_payulatam_confirmation($order) {
       COMMERCE_PAYMENT_STATUS_FAILURE => 'canceled',
     );
 
-    if (!isset($payment['settings']['py_assign_status']) || $payment['settings']['py_assign_status'] == 'M') {
+    if ( ! isset($payment['settings']['py_assign_status']) || $payment['settings']['py_assign_status'] == 'M') {
       $status = $default_status[$transaction->status];
 
       if (isset($payment['settings']['py_status_' . $transaction->status])) {
@@ -110,15 +111,15 @@ function commerce_payulatam_save_transation($param, $order) {
   $amount = commerce_currency_decimal_to_amount($exchange_money, $param['currency']);
 
   $result = db_insert('commerce_payulatam')
-    ->fields(array(
-      'order_id' => $order->order_id,
-      'created' => REQUEST_TIME,
-      'reference_payulatam' => $param['reference_pol'],
-      'state_transaction' => $param['state_pol'],
-      'value' => $amount,
-      'response' => serialize($param),
-    ))
-    ->execute();
+          ->fields(array(
+            'order_id' => $order->order_id,
+            'created' => REQUEST_TIME,
+            'reference_payulatam' => $param['reference_pol'],
+            'state_transaction' => $param['state_pol'],
+            'value' => $amount,
+            'response' => serialize($param),
+          ))
+          ->execute();
 
   $transaction = commerce_payment_transaction_new('payulatam', $order->order_id);
 
@@ -199,4 +200,12 @@ function commerce_payulatam_get_firm($settings, $state_transation = NULL) {
  */
 function commerce_payulatam_get_md5($order_id, $token, $type = 'CONFIRMATION') {
   return md5($order_id . '~' . strtoupper($type) . '~' . $token);
+}
+
+function commerce_payulatam_get_languages() {
+  return array(
+    'en' => t('English'),
+    'es' => t('Spanish'),
+    'pt' => t('Portuguese'),
+  );
 }

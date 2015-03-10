@@ -247,12 +247,13 @@ function commerce_payulatam_commerce_payment_method_info() {
 
   $payment_methods['payulatam'] = array(
     'base' => 'commerce_payulatam',
-    'title' => t('PAYULATAM'),
-    'short_title' => t('PAYULATAM'),
-    'description' => t('PAYULATAM Payments Standard'),
+    'title' => t('PayuLatam'),
+    'short_title' => t('PayuLatam'),
+    'description' => t('PayuLatam Payments Standard'),
     'terminal' => FALSE,
     'offsite' => TRUE,
     'offsite_autoredirect' => TRUE,
+    'extra1' => 'Drupal',
   );
 
   return $payment_methods;
@@ -262,6 +263,9 @@ function commerce_payulatam_commerce_payment_method_info() {
  * Payment method callback: settings form.
  */
 function commerce_payulatam_settings_form($settings = NULL) {
+  
+  module_load_include('inc', 'commerce_payulatam');
+  
   $form = array();
 
   $form['py_api_key'] = array(
@@ -405,6 +409,14 @@ function commerce_payulatam_settings_form($settings = NULL) {
     '#required' => TRUE,
     '#default_value' => isset($settings['py_testing']) ? $settings['py_testing'] : NULL,
   );
+  
+  $form['py_language'] = array(
+    '#title' => t('Language'),
+    '#type' => 'select',
+    '#options' => commerce_payulatam_get_languages(),
+    '#required' => TRUE,
+    '#default_value' => isset($settings['py_language']) ? $settings['py_language'] : NULL,
+  );
 
   return $form;
 }
@@ -529,7 +541,8 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
     'mobilePhone' => $order->data['commerce_payulatam_data']['telephone'],
     'confirmationUrl' => $url_page['confirmation'],
     'responseUrl' => $url_page['response'],
-    'extra1' => $payment_method['instance_id'],
+    'extra1' => $payment_method['extra1'],
+    'lng' => $settings['py_language'],
     'billingAddress' => $address_billing['thoroughfare'],
     'billingCountry' => $address_billing['country'],
     'billingCity' => $address_billing['locality'],
@@ -553,7 +566,8 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
   }
 
   $form['submit'] = array(
-    '#type' => 'submit',
+    '#type' => 'image_button',
+    '#src' => drupal_get_path('module', 'commerce_payulatam') . '/images/boton_pagar_mediano.png',
     '#value' => t('Proceed to payulatam'),
   );
 
@@ -660,4 +674,5 @@ class CommercePayuLatamEntityController extends EntityAPIController {
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
+  
 }
