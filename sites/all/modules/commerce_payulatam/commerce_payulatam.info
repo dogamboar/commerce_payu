@@ -8,3 +8,7 @@ core = "7.x"
 project = "commerce_payulatam"
 datestamp = "1414543433"
 
+dependencies[] = commerce
+dependencies[] = commerce_ui
+dependencies[] = commerce_payment
+dependencies[] = commerce_order

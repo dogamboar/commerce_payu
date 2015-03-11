@@ -263,9 +263,9 @@ function commerce_payulatam_commerce_payment_method_info() {
  * Payment method callback: settings form.
  */
 function commerce_payulatam_settings_form($settings = NULL) {
-  
+
   module_load_include('inc', 'commerce_payulatam');
-  
+
   $form = array();
 
   $form['py_api_key'] = array(
@@ -409,7 +409,7 @@ function commerce_payulatam_settings_form($settings = NULL) {
     '#required' => TRUE,
     '#default_value' => isset($settings['py_testing']) ? $settings['py_testing'] : NULL,
   );
-  
+
   $form['py_language'] = array(
     '#title' => t('Language'),
     '#type' => 'select',
@@ -566,11 +566,17 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
   }
 
   $form['submit'] = array(
-    '#type' => 'image_button',
-    '#src' => drupal_get_path('module', 'commerce_payulatam') . '/images/boton_pagar_mediano.png',
-    '#value' => t('Proceed to payulatam'),
+    '#type' => 'submit',
+    '#id' => 'submit_payulatam',
+    '#attributes' => array('class' => array('payu-latam-button')),
   );
 
+  drupal_add_css(drupal_get_path('module', 'commerce_payulatam') . '/styles/payu_latam.css');
+/*
+  $form['#attached']['css'] = array(
+    drupal_get_path('module', 'commerce_payulatam') . '/styles/payu_latam.css',
+  );
+*/
   return $form;
 }
 
@@ -674,5 +680,5 @@ class CommercePayuLatamEntityController extends EntityAPIController {
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
-  
+
 }
