@@ -253,7 +253,7 @@ function commerce_payulatam_commerce_payment_method_info() {
     'terminal' => FALSE,
     'offsite' => TRUE,
     'offsite_autoredirect' => TRUE,
-    'extra1' => 'Drupal',
+    'extra1' => 'Drupal ' . VERSION,
   );
 
   return $payment_methods;
@@ -444,10 +444,18 @@ function commerce_payulatam_submit_form($payment_method, $pane_values, $checkout
 
   $form['telephone'] = array(
     '#type' => 'textfield',
-    '#title' => t('Buyer telephone'),
+    '#title' => t('Buyer phone'),
     '#default_value' => '',
     '#required' => TRUE,
   );
+  
+  $form['mobilePhone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mobile phone'),
+    '#default_value' => '',
+    '#required' => TRUE,
+  );
+  
   return $form;
 }
 
@@ -536,9 +544,9 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
     'buyerEmail' => $order->data['commerce_payulatam_data']['buyerEmail'],
     'payerEmail' => $order->data['commerce_payulatam_data']['payerEmail'],
     'payerFullName' => $address_billing['name_line'],
-    'buyerFullName' => $address_billing['name_line'],
+    'buyerFullName' => $address_shipping['name_line'],
     'telephone' => $order->data['commerce_payulatam_data']['telephone'],
-    'mobilePhone' => $order->data['commerce_payulatam_data']['telephone'],
+    'mobilePhone' => $order->data['commerce_payulatam_data']['mobilePhone'],
     'confirmationUrl' => $url_page['confirmation'],
     'responseUrl' => $url_page['response'],
     'extra1' => $payment_method['extra1'],
@@ -549,7 +557,7 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
     'shippingAddress' => $address_shipping['thoroughfare'],
     'shippingCity' => $address_shipping['locality'],
     'shippingCountry' => $address_shipping['country'],
-    'mobilePhone' => $address_billing['name_line'],
+    // 'mobilePhone' => $address_billing['name_line'],
   );
 
   // Mode Test.
