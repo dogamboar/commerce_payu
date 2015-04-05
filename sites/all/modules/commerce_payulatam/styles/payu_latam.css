@@ -1,0 +1,7 @@
+#submit_payulatam, .payu-latam-button{
+  background: url(../images/boton_pagar_mediano.png) 0 0 no-repeat transparent;
+  width: 138px;
+  height: 34px;
+  border: none;
+  margin: 0 0 10px 10px;
+}
