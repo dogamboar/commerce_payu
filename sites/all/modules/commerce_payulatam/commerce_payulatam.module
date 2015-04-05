@@ -249,7 +249,7 @@ function commerce_payulatam_commerce_payment_method_info() {
     'base' => 'commerce_payulatam',
     'title' => t('PayuLatam'),
     'short_title' => t('PayuLatam'),
-    'description' => t('PayuLatam Payments Standard'),
+    'description' => t('PayuLatam Payments Standard (Webcheckout)'),
     'terminal' => FALSE,
     'offsite' => TRUE,
     'offsite_autoredirect' => TRUE,
@@ -448,14 +448,14 @@ function commerce_payulatam_submit_form($payment_method, $pane_values, $checkout
     '#default_value' => '',
     '#required' => TRUE,
   );
-  
+
   $form['mobilePhone'] = array(
     '#type' => 'textfield',
     '#title' => t('Mobile phone'),
     '#default_value' => '',
     '#required' => TRUE,
   );
-  
+
   return $form;
 }
 
@@ -521,7 +521,7 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
 
   $signature = commerce_payulatam_get_firm($settings);
 
-  $url_page = commerce_payulatam_get_url($order->order_id);
+  $url_page = commerce_payulatam_get_url($order);
 
   $form['#action'] = $settings['py_action_url_production'];
 
@@ -656,6 +656,68 @@ function commerce_payulatam_entity_property_info() {
   );
 
   return $info;
+}
+
+function commerce_payulatam_form_commerce_checkout_form_complete_alter(&$form, &$form_state, $form_id){
+
+  $order_id = $form_state['order']->order_id;
+
+  if( isset($_SESSION['payu_response_'.$order_id] ) ){
+    $form['payu_response'] = $_SESSION['payu_response_'.$order_id];
+    $form['checkout_completion_message']['#weight'] = 1;
+    $form['payu_response']['#weight'] = 0;
+  }
+}
+
+function commerce_payulatam_redirect_form_submit($order, $payment_method){
+
+  if($payment_method['method_id'] == 'payulatam'){
+
+    $param = commerce_payulatam_get_param($_GET);
+
+    $param['value'] = number_format($param['value'], 1, '.', '');
+
+    if ($param['transactionState'] == 6 && $param['polResponseCode'] == 5) {
+      $param['message'] = 'Failed transaction';
+    }
+    elseif ($param['transactionState'] == 6 && $param['polResponseCode'] == 4) {
+      $param['message'] = 'Transaction rejected';
+    }
+    elseif ($param['transactionState'] == 12 && $param['polResponseCode'] == 9994) {
+      $param['message'] = 'Pending, Please check whether the debit was made in the Bank';
+    }
+    elseif ($param['transactionState'] == 4 && $param['polResponseCode'] == 1) {
+      $param['message'] = 'Transaction approved';
+    }
+    else {
+      // Nothing to do
+    }
+
+    $rows = array(
+      array(t('Transaction state'), $param['message']),
+      array(t('Transaction ID'), $param['transactionId']),
+      array(t('Sale reference'), $param['reference_pol']),
+      array(t('Transaction Reference'), $param['referenceCode']),
+      array(t('Ammount'), $param['value']),
+      array(t('Currency'), $param['currency']),
+      array(t('Description'), $param['description']),
+      array(t('Entity'), $param['lapPaymentMethod']),
+    );
+
+    if ($param['pseBank']) {
+      $rows[] = array(t('CUS'), $param['cus']);
+      $rows[] = array(t('Bank'), $param['pseBank']);
+    }
+
+    $content['table'] = array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+    );
+
+    drupal_alter('commerce_payulatam_response', $content, $param);
+
+    $_SESSION['payu_response_'.$order->order_id] = $content;
+  }
 }
 
 class CommercePayuLatamEntityController extends EntityAPIController {
