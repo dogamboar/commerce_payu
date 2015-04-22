@@ -488,6 +488,8 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
 
   $wrapper = entity_metadata_wrapper('commerce_order', $order);
 
+  $currency_code = $wrapper->commerce_order_total->currency_code->value();
+
   $address_billing = $wrapper->commerce_customer_billing->commerce_customer_address->value();
   $address_shipping = $wrapper->commerce_customer_shipping->commerce_customer_address->value();
 
@@ -540,7 +542,7 @@ function commerce_payulatam_redirect_form($form, &$form_state, $order, $payment_
     'taxReturnBase' => $taxes['base_price'],
     'signature' => $signature,
     'accountId' => $settings['py_account_id'],
-    'currency' => $settings['currency_code'],
+    'currency' => $currency_code,
     'buyerEmail' => $order->data['commerce_payulatam_data']['buyerEmail'],
     'payerEmail' => $order->data['commerce_payulatam_data']['payerEmail'],
     'payerFullName' => $address_billing['name_line'],
