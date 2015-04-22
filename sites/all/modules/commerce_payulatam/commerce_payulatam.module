@@ -680,16 +680,16 @@ function commerce_payulatam_redirect_form_submit($order, $payment_method){
     $param['value'] = number_format($param['value'], 1, '.', '');
 
     if ($param['transactionState'] == 6 && $param['polResponseCode'] == 5) {
-      $param['message'] = 'Failed transaction';
+      $param['message'] = t('Failed transaction');
     }
     elseif ($param['transactionState'] == 6 && $param['polResponseCode'] == 4) {
-      $param['message'] = 'Transaction rejected';
+      $param['message'] = t('Transaction rejected');
     }
     elseif ($param['transactionState'] == 12 && $param['polResponseCode'] == 9994) {
-      $param['message'] = 'Pending, Please check whether the debit was made in the Bank';
+      $param['message'] = t('Pending, Please check whether the debit was made in the Bank');
     }
     elseif ($param['transactionState'] == 4 && $param['polResponseCode'] == 1) {
-      $param['message'] = 'Transaction approved';
+      $param['message'] = t('Transaction approved');
     }
     else {
       // Nothing to do
