@@ -247,9 +247,9 @@ function commerce_payulatam_commerce_payment_method_info() {
 
   $payment_methods['payulatam'] = array(
     'base' => 'commerce_payulatam',
-    'title' => t('PayuLatam'),
+    'title' => t('Payment gateway PayuLatam'),
     'short_title' => t('PayuLatam'),
-    'description' => t('PayuLatam Payments Standard (Webcheckout)'),
+    'description' => t('PayuLatam Payment Standard Method (Webcheckout)'),
     'terminal' => FALSE,
     'offsite' => TRUE,
     'offsite_autoredirect' => TRUE,
