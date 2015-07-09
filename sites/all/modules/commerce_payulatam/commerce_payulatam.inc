@@ -64,6 +64,10 @@ function commerce_payulatam_confirmation($order) {
     'message' => t('Confirmation success'),
   );
 
+  $params = drupal_get_query_parameters();
+
+  watchdog('debug_payu', "Response: \n" . print_r($params, TRUE), array(), WATCHDOG_DEBUG);
+
   try {
     $param = commerce_payulatam_get_param($_POST);
     $transaction = commerce_payulatam_save_transation($param, $order);
